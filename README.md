@@ -191,7 +191,9 @@ Contributions are welcome! Please open issues or submit pull requests for featur
 ---
 
 Empower your beauty business with smarter customer engagement and seamless loyalty management!
-````
+
+The pitch Deck for this project"
+https://wonderslide.com/s/tr59yau0/
 
 
 
