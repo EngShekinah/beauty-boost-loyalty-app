@@ -1,11 +1,9 @@
-````markdown name=README.md
+
 ## Beauty Boost Loyalty App
 
 **Beauty Boost Loyalty App** is a customer engagement and rewards platform designed specifically for beauty salons, spas, and related businesses. This application streamlines customer retention by offering a seamless, digital solution for managing loyalty programs, promotions, and client relationships.
 
-In addition to core loyalty and engagement features, the app provides a robust backend simulation using a comprehensive DataService layer. All user data—including profiles, points, bookings, rewards, and transaction history—is persistently stored, ensuring data survives page refreshes and browser restarts. The system supports real-time updates, so all components automatically reflect changes as they happen. A built-in tier system automatically calculates user status (Bronze → Silver → Gold → Platinum) based on points. The app also maintains a full transaction history, providing an audit trail of all point earnings and redemptions.
-
-**New:** The admin dashboard now updates in real-time with customer appointments, featuring automatic refresh every 30 seconds, manual refresh capability, and live appointment tracking with timestamps for up-to-the-minute management.
+In addition to core loyalty and engagement features, the app provides a robust backend simulation using a comprehensive DataService layer. All user data—including profiles, points, bookings, rewards, and transaction history—is persistently stored, ensuring data survives page refreshes and browser restarts. The system supports real-time updates, so all components automatically reflect changes as they happen. A built-in tier system automatically calculates user status (Bronze → Silver → Gold → Platinum) based on points. The app also maintains a full transaction history, providing an audit trail of all point earnings and redemptions.The admin dashboard now updates in real-time with customer appointments, featuring automatic refresh every 30 seconds, manual refresh capability, and live appointment tracking with timestamps for up-to-the-minute management.
 
 ---
 
