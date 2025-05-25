@@ -1,13 +1,18 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, Calendar, Star, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, Calendar, Star, TrendingUp, RefreshCw } from 'lucide-react';
 import { AuthService } from '@/services/authService';
-import { DataService } from '@/services/dataService';
+import { DataService, Booking } from '@/services/dataService';
 
 const AdminDashboard = () => {
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Get fresh data on each render and when refreshKey changes
   const users = AuthService.getAllUsers().filter(u => u.role === 'customer');
   const allBookings = DataService.getAllBookings();
   
@@ -15,6 +20,21 @@ const AdminDashboard = () => {
   const totalBookings = allBookings.length;
   const completedBookings = allBookings.filter(b => b.status === 'completed').length;
   const upcomingBookings = allBookings.filter(b => b.status === 'upcoming').length;
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshKey(prev => prev + 1);
+      setLastUpdated(new Date());
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleManualRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+    setLastUpdated(new Date());
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -35,15 +55,34 @@ const AdminDashboard = () => {
     }
   };
 
+  // Sort bookings by most recent first
+  const sortedBookings = [...allBookings].sort((a, b) => {
+    return new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime();
+  });
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in" key={refreshKey}>
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold bg-gradient-luxury-red bg-clip-text text-transparent">
-          Admin Dashboard ✨
-        </h1>
+        <div className="flex items-center justify-center space-x-4">
+          <h1 className="text-3xl font-bold bg-gradient-luxury-red bg-clip-text text-transparent">
+            Admin Dashboard ✨
+          </h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManualRefresh}
+            className="border-luxury-gold text-luxury-black hover:bg-luxury-gold/10"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
         <p className="text-luxury-black/70">
           Manage your beauty salon and customer loyalty program
+        </p>
+        <p className="text-xs text-luxury-black/50">
+          Last updated: {lastUpdated.toLocaleTimeString()}
         </p>
       </div>
 
@@ -121,12 +160,17 @@ const AdminDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Appointments */}
+      {/* Real-time Appointments */}
       <Card className="glass-card border-0 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-luxury-black">
-            <Calendar className="h-5 w-5 text-luxury-gold" />
-            <span>Recent Appointments</span>
+          <CardTitle className="flex items-center justify-between text-luxury-black">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-luxury-gold" />
+              <span>Recent Appointments</span>
+            </div>
+            <Badge variant="outline" className="border-luxury-gold text-luxury-black">
+              Live Updates
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -140,11 +184,13 @@ const AdminDashboard = () => {
                 <TableHead>Stylist</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Price</TableHead>
+                <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allBookings.slice(0, 10).map((booking) => {
+              {sortedBookings.slice(0, 15).map((booking) => {
                 const customer = users.find(u => u.id === booking.userId);
+                const createdDate = booking.createdAt ? new Date(booking.createdAt).toLocaleString() : 'N/A';
                 return (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{booking.serviceName}</TableCell>
@@ -158,12 +204,13 @@ const AdminDashboard = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>${booking.price}</TableCell>
+                    <TableCell className="text-xs text-luxury-black/60">{createdDate}</TableCell>
                   </TableRow>
                 );
               })}
-              {allBookings.length === 0 && (
+              {sortedBookings.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-luxury-black/60">
+                  <TableCell colSpan={8} className="text-center text-luxury-black/60">
                     No appointments found
                   </TableCell>
                 </TableRow>
