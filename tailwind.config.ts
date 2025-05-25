@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				beauty: {
+					pink: '#E91E63',
+					'pink-light': '#FCE4EC',
+					purple: '#9C27B0',
+					gold: '#FFD700',
+					'gold-light': '#FFF9C4',
+					rose: '#F48FB1',
+					lavender: '#E1BEE7'
 				}
 			},
 			borderRadius: {
@@ -84,11 +94,48 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.95)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
+				},
+				'shimmer': {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(100%)' }
+				},
+				'bounce-gentle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-4px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'scale-in': 'scale-in 0.2s ease-out',
+				'shimmer': 'shimmer 2s infinite',
+				'bounce-gentle': 'bounce-gentle 2s infinite'
+			},
+			backgroundImage: {
+				'gradient-beauty': 'linear-gradient(135deg, #E91E63 0%, #9C27B0 50%, #673AB7 100%)',
+				'gradient-gold': 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
+				'gradient-soft': 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 100%)'
 			}
 		}
 	},
