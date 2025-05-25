@@ -3,8 +3,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, User, Coins } from 'lucide-react';
+import { useLocalData } from '@/hooks/useLocalData';
 
 const Header = () => {
+  const { userPoints } = useLocalData();
+
   return (
     <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-md border-b border-beauty-pink/20 sticky top-0 z-40">
       <div className="flex items-center space-x-3">
@@ -22,7 +25,7 @@ const Header = () => {
       <div className="flex items-center space-x-3">
         <Badge variant="secondary" className="bg-beauty-gold-light text-beauty-gold border-beauty-gold animate-bounce-gentle">
           <Coins className="h-3 w-3 mr-1" />
-          2,450
+          {userPoints.toLocaleString()}
         </Badge>
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-5 w-5" />

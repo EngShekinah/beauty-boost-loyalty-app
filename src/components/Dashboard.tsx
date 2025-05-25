@@ -5,24 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Star, Gift, Calendar, User, Heart, Coins } from 'lucide-react';
+import { useLocalData } from '@/hooks/useLocalData';
 
 const Dashboard = () => {
-  const userPoints = 2450;
-  const nextTierPoints = 3000;
-  const currentTier = 'Gold';
-  const progressPercentage = (userPoints / nextTierPoints) * 100;
+  const { userProfile, userPoints, servicesHistory } = useLocalData();
 
-  const recentServices = [
-    { name: 'Hair Cut & Style', date: '2024-05-20', points: 150 },
-    { name: 'Facial Treatment', date: '2024-05-15', points: 200 },
-    { name: 'Manicure', date: '2024-05-10', points: 100 },
-  ];
+  if (!userProfile) {
+    return <div>Loading...</div>;
+  }
+
+  const nextTierPoints = userProfile.tier === 'Bronze' ? 1000 : 
+                       userProfile.tier === 'Silver' ? 3000 : 
+                       userProfile.tier === 'Gold' ? 5000 : 10000;
+  
+  const progressPercentage = userProfile.tier === 'Platinum' ? 100 : (userPoints / nextTierPoints) * 100;
 
   const availableRewards = [
-    { name: 'Free Hair Wash', points: 100, available: true },
-    { name: '20% Off Next Service', points: 200, available: true },
-    { name: 'Complimentary Facial', points: 500, available: true },
-    { name: 'VIP Treatment Package', points: 1000, available: true },
+    { name: 'Free Hair Wash', points: 100, available: userPoints >= 100 },
+    { name: '20% Off Next Service', points: 200, available: userPoints >= 200 },
+    { name: 'Complimentary Facial', points: 500, available: userPoints >= 500 },
+    { name: 'VIP Treatment Package', points: 1000, available: userPoints >= 1000 },
   ];
 
   return (
@@ -30,7 +32,7 @@ const Dashboard = () => {
       {/* Welcome Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold bg-gradient-beauty bg-clip-text text-transparent">
-          Welcome back, Sarah! ✨
+          Welcome back, {userProfile.name}! ✨
         </h1>
         <p className="text-muted-foreground">
           You're glowing! Here's your beauty journey update.
@@ -52,20 +54,28 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center justify-center space-x-2 mt-2">
               <Badge variant="secondary" className={`tier-badge ${
-                currentTier === 'Gold' ? 'bg-beauty-gold text-black' : 
-                currentTier === 'Silver' ? 'bg-gray-300 text-gray-800' : 
+                userProfile.tier === 'Gold' ? 'bg-beauty-gold text-black' : 
+                userProfile.tier === 'Silver' ? 'bg-gray-300 text-gray-800' : 
+                userProfile.tier === 'Platinum' ? 'bg-purple-300 text-purple-800' :
                 'bg-orange-300 text-orange-800'
               }`}>
                 <Star className="h-3 w-3 mr-1" />
-                {currentTier} Member
+                {userProfile.tier} Member
               </Badge>
             </div>
           </div>
           
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Progress to Platinum</span>
-              <span>{nextTierPoints - userPoints} points to go</span>
+              <span>
+                {userProfile.tier === 'Platinum' ? 'Maximum tier reached!' : `Progress to ${
+                  userProfile.tier === 'Bronze' ? 'Silver' :
+                  userProfile.tier === 'Silver' ? 'Gold' : 'Platinum'
+                }`}
+              </span>
+              {userProfile.tier !== 'Platinum' && (
+                <span>{nextTierPoints - userPoints} points to go</span>
+              )}
             </div>
             <Progress value={progressPercentage} className="h-3" />
           </div>
@@ -110,9 +120,9 @@ const Dashboard = () => {
                 <Button 
                   size="sm" 
                   className="bg-gradient-beauty hover:opacity-90 transition-opacity"
-                  disabled={userPoints < reward.points}
+                  disabled={!reward.available}
                 >
-                  {userPoints >= reward.points ? 'Redeem' : 'Not enough points'}
+                  {reward.available ? 'Redeem' : 'Not enough points'}
                 </Button>
               </div>
             ))}
@@ -130,7 +140,7 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {recentServices.map((service, index) => (
+            {servicesHistory.slice(0, 3).map((service, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <div>
                   <h4 className="font-medium">{service.name}</h4>
