@@ -1,4 +1,3 @@
-
 // Local storage keys
 const STORAGE_KEYS = {
   USER_PROFILE: 'beautyboost_user_profile',
@@ -33,6 +32,7 @@ export interface PointsTransaction {
 
 export interface Booking {
   id: string;
+  userId: string;
   serviceId: string;
   serviceName: string;
   stylist: string;
@@ -55,28 +55,33 @@ export interface RedeemedReward {
   expiryDate?: string;
 }
 
+// Add user-specific storage keys
+const getUserStorageKey = (userId: string, key: string) => `${key}_${userId}`;
+
 // Initialize default data
-const initializeDefaultData = () => {
+const initializeDefaultData = (userId?: string) => {
+  const currentUserId = userId || 'user_001';
+  
   // Default user profile
-  if (!localStorage.getItem(STORAGE_KEYS.USER_PROFILE)) {
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.USER_PROFILE))) {
     const defaultProfile: UserProfile = {
-      id: 'user_001',
+      id: currentUserId,
       name: 'Sarah Johnson',
       email: 'sarah.johnson@email.com',
       phone: '+1 (555) 123-4567',
       joinDate: '2024-01-15',
       tier: 'Gold'
     };
-    localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(defaultProfile));
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.USER_PROFILE), JSON.stringify(defaultProfile));
   }
 
   // Default points
-  if (!localStorage.getItem(STORAGE_KEYS.USER_POINTS)) {
-    localStorage.setItem(STORAGE_KEYS.USER_POINTS, '2450');
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.USER_POINTS))) {
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.USER_POINTS), '2450');
   }
 
   // Default points history
-  if (!localStorage.getItem(STORAGE_KEYS.POINTS_HISTORY)) {
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.POINTS_HISTORY))) {
     const defaultHistory: PointsTransaction[] = [
       {
         id: 'txn_001',
@@ -100,38 +105,52 @@ const initializeDefaultData = () => {
         date: '2024-05-10'
       }
     ];
-    localStorage.setItem(STORAGE_KEYS.POINTS_HISTORY, JSON.stringify(defaultHistory));
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.POINTS_HISTORY), JSON.stringify(defaultHistory));
   }
 
   // Default services history
-  if (!localStorage.getItem(STORAGE_KEYS.SERVICES_HISTORY)) {
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.SERVICES_HISTORY))) {
     const defaultServices = [
       { name: 'Hair Cut & Style', date: '2024-05-20', points: 150 },
       { name: 'Facial Treatment', date: '2024-05-15', points: 200 },
       { name: 'Manicure', date: '2024-05-10', points: 100 }
     ];
-    localStorage.setItem(STORAGE_KEYS.SERVICES_HISTORY, JSON.stringify(defaultServices));
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.SERVICES_HISTORY), JSON.stringify(defaultServices));
   }
 
   // Initialize empty arrays for other data
-  if (!localStorage.getItem(STORAGE_KEYS.BOOKINGS)) {
-    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify([]));
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.BOOKINGS))) {
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.BOOKINGS), JSON.stringify([]));
   }
 
-  if (!localStorage.getItem(STORAGE_KEYS.REDEEMED_REWARDS)) {
-    localStorage.setItem(STORAGE_KEYS.REDEEMED_REWARDS, JSON.stringify([]));
+  if (!localStorage.getItem(getUserStorageKey(currentUserId, STORAGE_KEYS.REDEEMED_REWARDS))) {
+    localStorage.setItem(getUserStorageKey(currentUserId, STORAGE_KEYS.REDEEMED_REWARDS), JSON.stringify([]));
   }
 };
 
 // Data service functions
 export class DataService {
-  static initialize() {
-    initializeDefaultData();
+  static currentUserId: string = 'user_001';
+
+  static setCurrentUser(userId: string) {
+    this.currentUserId = userId;
+  }
+
+  static initialize(userId?: string) {
+    if (userId) {
+      this.currentUserId = userId;
+    }
+    initializeDefaultData(this.currentUserId);
+  }
+
+  static initializeUserData(userId: string) {
+    this.setCurrentUser(userId);
+    initializeDefaultData(userId);
   }
 
   // User Profile
   static getUserProfile(): UserProfile | null {
-    const data = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+    const data = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.USER_PROFILE));
     return data ? JSON.parse(data) : null;
   }
 
@@ -139,18 +158,18 @@ export class DataService {
     const current = this.getUserProfile();
     if (current) {
       const updated = { ...current, ...profile };
-      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(updated));
+      localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.USER_PROFILE), JSON.stringify(updated));
     }
   }
 
   // Points
   static getUserPoints(): number {
-    const points = localStorage.getItem(STORAGE_KEYS.USER_POINTS);
+    const points = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.USER_POINTS));
     return points ? parseInt(points, 10) : 0;
   }
 
   static updateUserPoints(newPoints: number): void {
-    localStorage.setItem(STORAGE_KEYS.USER_POINTS, newPoints.toString());
+    localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.USER_POINTS), newPoints.toString());
   }
 
   static addPoints(amount: number, description: string, serviceId?: string): void {
@@ -193,44 +212,61 @@ export class DataService {
 
   // Points History
   static getPointsHistory(): PointsTransaction[] {
-    const data = localStorage.getItem(STORAGE_KEYS.POINTS_HISTORY);
+    const data = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.POINTS_HISTORY));
     return data ? JSON.parse(data) : [];
   }
 
   static addPointsTransaction(transaction: PointsTransaction): void {
     const history = this.getPointsHistory();
     history.unshift(transaction);
-    localStorage.setItem(STORAGE_KEYS.POINTS_HISTORY, JSON.stringify(history));
+    localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.POINTS_HISTORY), JSON.stringify(history));
   }
 
   // Services History
   static getServicesHistory(): any[] {
-    const data = localStorage.getItem(STORAGE_KEYS.SERVICES_HISTORY);
+    const data = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.SERVICES_HISTORY));
     return data ? JSON.parse(data) : [];
   }
 
   static addServiceToHistory(service: any): void {
     const history = this.getServicesHistory();
     history.unshift(service);
-    localStorage.setItem(STORAGE_KEYS.SERVICES_HISTORY, JSON.stringify(history));
+    localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.SERVICES_HISTORY), JSON.stringify(history));
   }
 
   // Bookings
   static getBookings(): Booking[] {
-    const data = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
+    const data = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.BOOKINGS));
     return data ? JSON.parse(data) : [];
+  }
+
+  // Get all bookings for admin view
+  static getAllBookings(): Booking[] {
+    const allBookings: Booking[] = [];
+    const users = JSON.parse(localStorage.getItem('beautyboost_users') || '[]');
+    
+    users.forEach((user: any) => {
+      const userBookings = localStorage.getItem(getUserStorageKey(user.id, STORAGE_KEYS.BOOKINGS));
+      if (userBookings) {
+        const bookings = JSON.parse(userBookings);
+        allBookings.push(...bookings);
+      }
+    });
+    
+    return allBookings;
   }
 
   static addBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Booking {
     const newBooking: Booking = {
       ...booking,
       id: `booking_${Date.now()}`,
+      userId: this.currentUserId,
       createdAt: new Date().toISOString()
     };
     
     const bookings = this.getBookings();
     bookings.push(newBooking);
-    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+    localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.BOOKINGS), JSON.stringify(bookings));
     
     return newBooking;
   }
@@ -240,13 +276,13 @@ export class DataService {
     const booking = bookings.find(b => b.id === bookingId);
     if (booking) {
       booking.status = status;
-      localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+      localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.BOOKINGS), JSON.stringify(bookings));
     }
   }
 
   // Redeemed Rewards
   static getRedeemedRewards(): RedeemedReward[] {
-    const data = localStorage.getItem(STORAGE_KEYS.REDEEMED_REWARDS);
+    const data = localStorage.getItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.REDEEMED_REWARDS));
     return data ? JSON.parse(data) : [];
   }
 
@@ -258,7 +294,7 @@ export class DataService {
     
     const rewards = this.getRedeemedRewards();
     rewards.push(newReward);
-    localStorage.setItem(STORAGE_KEYS.REDEEMED_REWARDS, JSON.stringify(rewards));
+    localStorage.setItem(getUserStorageKey(this.currentUserId, STORAGE_KEYS.REDEEMED_REWARDS), JSON.stringify(rewards));
     
     return newReward;
   }
@@ -280,7 +316,8 @@ export class DataService {
   // Clear all data (for testing)
   static clearAllData(): void {
     Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
+      // Clear for current user
+      localStorage.removeItem(getUserStorageKey(this.currentUserId, key));
     });
   }
 }

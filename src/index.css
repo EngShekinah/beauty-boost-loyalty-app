@@ -90,7 +90,7 @@
   }
 
   body {
-    @apply bg-gradient-soft text-foreground min-h-screen;
+    @apply bg-gradient-luxury text-foreground min-h-screen;
   }
 }
 
@@ -111,5 +111,9 @@
     @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
     content: '';
     animation: shimmer 2s infinite;
+  }
+
+  .luxury-card {
+    @apply backdrop-blur-md bg-luxury-black/80 border border-luxury-gold/20 shadow-2xl;
   }
 }

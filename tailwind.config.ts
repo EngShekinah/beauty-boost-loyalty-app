@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -62,6 +61,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				luxury: {
+					black: '#0a0a0a',
+					'black-light': '#1a1a1a',
+					gold: '#d4af37',
+					'gold-light': '#f4e5b8',
+					'gold-dark': '#b8941f',
+					red: '#8b0000',
+					'red-light': '#cd5c5c',
+					'red-dark': '#4a0000',
+					cream: '#f5f5dc',
+					'cream-dark': '#e6e6c7'
 				},
 				beauty: {
 					pink: '#E91E63',
@@ -135,7 +146,9 @@ export default {
 			backgroundImage: {
 				'gradient-beauty': 'linear-gradient(135deg, #E91E63 0%, #9C27B0 50%, #673AB7 100%)',
 				'gradient-gold': 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
-				'gradient-soft': 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 100%)'
+				'gradient-soft': 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 100%)',
+				'gradient-luxury': 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #d4af37 100%)',
+				'gradient-luxury-red': 'linear-gradient(135deg, #8b0000 0%, #cd5c5c 50%, #d4af37 100%)'
 			}
 		}
 	},
